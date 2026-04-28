@@ -1,10 +1,10 @@
 from chatbot.rag import RAG
 from pathlib import Path
 from chatbot.config import load_config
+from chatbot.index.faiss import FaissIndex
+from chatbot.encoder.sentence_transformer import SentenceTransformerEncoder
 
-rag = RAG(config=load_config())
-
-if __name__ == "__main__":
+def chat_loop(rag: RAG):
     print("Задайте вопрос")
     while True:
         question = input()
@@ -12,3 +12,9 @@ if __name__ == "__main__":
             break
         answer = rag.get_answer(question)
         print(answer)
+
+if __name__ == "__main__":
+    encoder = SentenceTransformerEncoder("all-MiniLM-L6-v2")
+    index = FaissIndex(encoder)
+    rag = RAG(config=load_config(), encoder=encoder, index=index)
+    chat_loop(rag)

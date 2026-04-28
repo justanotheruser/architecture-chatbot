@@ -1,4 +1,4 @@
-from sentence_transformers import SentenceTransformer
+
 import numpy as np
 import faiss
 from jinja2 import Template
@@ -7,6 +7,7 @@ from chatbot.env import WIKI_PATH
 from chatbot.chunker import Chunker
 from chatbot.config import RAGConfig
 from chatbot.models import DataChunk
+from chatbot.ports import Encoder, Index
 
 
 class PromptBuilder:
@@ -28,16 +29,13 @@ class PromptBuilder:
 
 
 class RAG:
-    def __init__(self, config: RAGConfig):
+    def __init__(self, config: RAGConfig, encoder: Encoder, index: Index):
         self.cfg = config
         self.prompt_builder = PromptBuilder(config.prompt)
-        self.config = config
-
+        self.encoder = encoder
+        self.index = index
         self._chunks = self._load_chunks()
-        self._model = SentenceTransformer("all-MiniLM-L6-v2")
-        self._embeddings = self._build_embeddings()
-        self._index = faiss.IndexFlatL2(self._embeddings.shape[1])
-        self._index.add(self._embeddings)  # type: ignore[call-args]
+        self.index.add([chunk.text for chunk in self._chunks])
 
     def get_answer(self, question: str) -> str:
         context_chunks = self.get_context(question)
@@ -46,8 +44,8 @@ class RAG:
         return answer
 
     def get_context(self, question: str) -> list[DataChunk]:
-        V, I = self._index.search(self._model.encode([question]), 10)  # type: ignore[call-args]
-        return [self._chunks[i] for i in I[0]]
+        indices = self.index.search(question, 10)
+        return [self._chunks[i] for i in indices]
 
     def get_answer_from_llm(self, prompt: str) -> str:
         return ""
@@ -61,7 +59,3 @@ class RAG:
             chunker.chunk_markdown_folder(WIKI_PATH)
             chunker.save_to_sqlite(CHUNKS_DB_PATH)
             return chunker.chunks
-    
-    def _build_embeddings(self) -> np.ndarray:
-        texts = [chunk.text for chunk in self._chunks]
-        return np.ascontiguousarray(self._model.encode(texts))

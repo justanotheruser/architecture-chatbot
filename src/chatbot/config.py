@@ -3,6 +3,7 @@ from pathlib import Path
 from chatbot.chunker import ChunkerConfig
 import yaml
 
+
 _CONFIG_FOLDER = Path(__file__).parent.parent.parent / "config"
 
 
