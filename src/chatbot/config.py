@@ -1,15 +1,14 @@
 from pydantic import BaseModel
 from pathlib import Path
+from chatbot.chunker import ChunkerConfig
 import yaml
 
 _CONFIG_FOLDER = Path(__file__).parent.parent.parent / "config"
 
 
 class RAGConfig(BaseModel):
+    chunker: ChunkerConfig
     prompt: str
-    chunk_size: int = 1000
-    overlap_ratio: float = 0.2
-
 
 
 def load_config(path: Path = _CONFIG_FOLDER / "rag.yml") -> RAGConfig:

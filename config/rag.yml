@@ -1,3 +1,7 @@
+chunker:
+  chunk_size: 1000
+  overlap_ratio: 0.2
+
 prompt: |
   [System]
   Ты — корпоративный ассистент. 
