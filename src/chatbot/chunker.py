@@ -13,6 +13,7 @@ class ChunkerConfig(BaseModel):
 
 class Chunker:
     """Читает документы и разбивает их на куски; умеет сохранять результат в SQLite и загружать из него"""
+
     def __init__(self, config: ChunkerConfig) -> None:
         self.cfg = config
         self.chunks: list[DataChunk] = []
@@ -24,17 +25,26 @@ class Chunker:
 
     def chunk_markdown_file(self, path: Path) -> None:
         text = path.read_text(encoding="utf-8")
-        chunks = chunk_markdown(text, chunk_size=self.cfg.chunk_size, overlap_ratio=self.cfg.overlap_ratio)
+        chunks = chunk_markdown(
+            text, chunk_size=self.cfg.chunk_size, overlap_ratio=self.cfg.overlap_ratio
+        )
         for title, chunk in chunks.items():
             print(f"{title}: {len(chunk)} lines")
-        self.chunks.extend([DataChunk(path.name, title, chunk) for title, chunk in chunks.items()])
+        self.chunks.extend(
+            [DataChunk(path.name, title, chunk) for title, chunk in chunks.items()]
+        )
 
     def save_to_sqlite(self, db_path: Path) -> None:
         if db_path.exists():
             db_path.unlink()
         with sqlite3.connect(db_path) as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS chunks (id INTEGER PRIMARY KEY AUTOINCREMENT, file_name TEXT, title TEXT, text TEXT)")
-            conn.executemany("INSERT INTO chunks (file_name, title, text) VALUES (?, ?, ?)", [(chunk.file_name, chunk.title, chunk.text) for chunk in self.chunks])
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS chunks (id INTEGER PRIMARY KEY AUTOINCREMENT, file_name TEXT, title TEXT, text TEXT)"
+            )
+            conn.executemany(
+                "INSERT INTO chunks (file_name, title, text) VALUES (?, ?, ?)",
+                [(chunk.file_name, chunk.title, chunk.text) for chunk in self.chunks],
+            )
 
     @staticmethod
     def load_from_sqlite(db_path: Path) -> list[DataChunk]:
@@ -54,7 +64,9 @@ class MarkDownNode:
         self.children: list[MarkDownNode] = []
 
 
-def split_markdown_sections(text: str, max_title_level: int = 2, title_delimiter: str = " / ") -> dict[str, str]:
+def split_markdown_sections(
+    text: str, max_title_level: int = 2, title_delimiter: str = " / "
+) -> dict[str, str]:
     root = build_markdown_tree(text, max_title_level)
     sections: dict[str, str] = {}
 
@@ -98,8 +110,9 @@ def build_markdown_tree(text: str, max_title_level: int) -> MarkDownNode:
         else:
             # если это не заголовок, то добавляем в текущий узел
             nodes[-1].content.append(line)
-    
+
     return root
+
 
 def chunk_markdown(text: str, chunk_size: int, overlap_ratio: float) -> dict[str, str]:
     assert 0 <= overlap_ratio < 1
