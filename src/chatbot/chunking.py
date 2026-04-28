@@ -14,7 +14,7 @@ def split_markdown_sections(text: str, max_title_level: int = 2, title_delimiter
     sections: dict[str, str] = {}
 
     def add_section(title: str, content: list[str]) -> None:
-        content_text = "\n".join(content)
+        content_text = "\n".join(content).strip()
         if content_text:
             sections[title] = content_text
 
@@ -80,11 +80,13 @@ def chunk_markdown(text: str, chunk_size: int, overlap_ratio: float) -> dict[str
             chunks[chunk_title] = section[start:end]
     return chunks
 
-wiki_path = pathlib.Path(__file__).parent.parent.parent / "wiki" / "wiki"
-for file in wiki_path.glob("*.md"):
-    text = file.read_text(encoding="utf-8")
-    chunks = chunk_markdown(text, chunk_size=1000, overlap_ratio=0.2)
-    print(file.name)
-    for title, chunk in chunks.items():
-      print(f"{title}: {len(chunk)} lines")
-    print()
+
+if __name__ == "__main__":  
+    wiki_path = pathlib.Path(__file__).parent.parent.parent / "wiki" / "wiki"
+    for file in wiki_path.glob("*.md"):
+        text = file.read_text(encoding="utf-8")
+        chunks = chunk_markdown(text, chunk_size=1000, overlap_ratio=0.2)
+        print(file.name)
+        for title, chunk in chunks.items():
+            print(f"{title}: {len(chunk)} lines")
+            print()
