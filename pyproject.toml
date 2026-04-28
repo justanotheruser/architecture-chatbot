@@ -25,3 +25,8 @@ priority = "explicit"
 
 [tool.poetry.dependencies]
 torch = { source = "pytorch_cpu" }
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.3,<10.0.0)"
+]
