@@ -14,8 +14,8 @@ class PromptBuilder:
 
     @staticmethod
     def chunk_to_context(chunk: DataChunk) -> str:
-        return f"""Имя файла: {chunk.file_name}
-Заголовок раздела: {chunk.title}\n
+        return f"""Имя статьи: {chunk.page_title}
+Заголовок раздела: {chunk.sections}\n
 {chunk.text}"""
 
 

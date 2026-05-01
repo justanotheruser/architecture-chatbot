@@ -1,29 +1,17 @@
 from pathlib import Path
 import re
 from collections import deque
-import sqlite3
 from chatbot.models import DataChunk
-from pydantic import BaseModel
+from chatbot.chunker import Chunker
 
 
-class ChunkerConfig(BaseModel):
-    chunk_size: int
-    overlap_ratio: float
-
-
-class Chunker:
-    """Читает документы и разбивает их на куски; умеет сохранять результат в SQLite и загружать из него"""
-
-    def __init__(self, config: ChunkerConfig) -> None:
-        self.cfg = config
-        self.chunks: list[DataChunk] = []
-
-    def chunk_markdown_folder(self, path: Path) -> None:
+class MarkdownChunker(Chunker):
+    def chunk_folder(self, path: Path) -> None:
         for file in path.rglob("*.md"):
             print(file)
-            self.chunk_markdown_file(file)
+            self.chunk_file(file)
 
-    def chunk_markdown_file(self, path: Path) -> None:
+    def chunk_file(self, path: Path) -> None:
         text = path.read_text(encoding="utf-8")
         chunks = chunk_markdown(
             text, chunk_size=self.cfg.chunk_size, overlap_ratio=self.cfg.overlap_ratio
@@ -33,28 +21,6 @@ class Chunker:
         self.chunks.extend(
             [DataChunk(path.name, title, chunk) for title, chunk in chunks.items()]
         )
-
-    def save_to_sqlite(self, db_path: Path) -> None:
-        if db_path.exists():
-            db_path.unlink()
-        with sqlite3.connect(db_path) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS chunks (id INTEGER PRIMARY KEY AUTOINCREMENT, file_name TEXT, title TEXT, text TEXT)"
-            )
-            conn.executemany(
-                "INSERT INTO chunks (file_name, title, text) VALUES (?, ?, ?)",
-                [(chunk.file_name, chunk.title, chunk.text) for chunk in self.chunks],
-            )
-
-    @staticmethod
-    def load_from_sqlite(db_path: Path) -> list[DataChunk]:
-        chunks: list[DataChunk] = []
-        with sqlite3.connect(db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM chunks")
-            for row in cursor.fetchall():
-                chunks.append(DataChunk(row[1], row[2], row[3]))
-        return chunks
 
 
 class MarkDownNode:

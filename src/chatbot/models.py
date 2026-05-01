@@ -3,6 +3,6 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True, slots=True)
 class DataChunk:
-    file_name: str
-    title: str
+    page_title: str
+    sections: str
     text: str
