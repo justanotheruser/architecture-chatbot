@@ -1,4 +1,9 @@
-from pydantic_settings import BaseSettings, YamlConfigSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    YamlConfigSettingsSource,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
 from pydantic import BaseModel
 from pathlib import Path
 
@@ -40,8 +45,8 @@ class RAGConfig(BaseSettings):
         env_file=_ENV_FILE,
         env_nested_delimiter="__",
         env_file_encoding="utf-8",
-        yaml_file=_CONFIG_FOLDER / 'rag.yml',
-        yaml_file_encoding="utf-8"
+        yaml_file=_CONFIG_FOLDER / "rag.yml",
+        yaml_file_encoding="utf-8",
     )
 
     @classmethod

@@ -13,12 +13,10 @@ class Chunker(ABC):
         self.chunks: list[DataChunk] = []
 
     @abstractmethod
-    def chunk_folder(self, path: Path) -> None:
-        ...
+    def chunk_folder(self, path: Path) -> None: ...
 
     @abstractmethod
-    def chunk_file(self, path: Path) -> None:
-        ...
+    def chunk_file(self, path: Path) -> None: ...
 
     def save_to_sqlite(self, db_path: Path) -> None:
         if db_path.exists():
@@ -29,7 +27,10 @@ class Chunker(ABC):
             )
             conn.executemany(
                 "INSERT INTO chunks (page_title, sections, text) VALUES (?, ?, ?)",
-                [(chunk.page_title, chunk.sections, chunk.text) for chunk in self.chunks],
+                [
+                    (chunk.page_title, chunk.sections, chunk.text)
+                    for chunk in self.chunks
+                ],
             )
 
     @staticmethod

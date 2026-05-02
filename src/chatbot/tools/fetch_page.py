@@ -18,7 +18,7 @@ def fetch_all_pages() -> list[dict]:
     }
 
     while True:
-        response = requests.get(API_URL, params=params, timeout=20)
+        response = requests.get(API_URL, params=params, timeout=20)  # type: ignore[arg-type]
         response.raise_for_status()
         data = response.json()
 

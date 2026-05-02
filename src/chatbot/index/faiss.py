@@ -1,4 +1,4 @@
-import faiss
+import faiss  # type: ignore[import-untyped]
 from chatbot.ports import Index, Encoder
 from chatbot.config import IndexConfig
 from pathlib import Path

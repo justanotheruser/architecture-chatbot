@@ -6,7 +6,7 @@ import orjson
 
 DROP_SELECTORS = [
     "script",
-    "style",    
+    "style",
     "noscript",
     ".mw-editsection",
     ".reference",
@@ -15,8 +15,6 @@ DROP_SELECTORS = [
     ".metadata",
     ".toc",
 ]
-
-
 
 
 class WikiJsonChunker(Chunker):
@@ -30,7 +28,9 @@ class WikiJsonChunker(Chunker):
         page_data = orjson.loads(text)
         title = page_data["title"]
         for section in clean_html_to_sections(page_data["html"]):
-            self.chunks.append(DataChunk(title, ' > '.join(section["section_path"]), section["text"]))
+            self.chunks.append(
+                DataChunk(title, " > ".join(section["section_path"]), section["text"])
+            )
 
 
 def clean_html_to_sections(html: str) -> list[dict]:
@@ -41,17 +41,19 @@ def clean_html_to_sections(html: str) -> list[dict]:
             node.decompose()
 
     sections = []
-    current_path = []
-    current_blocks = []
+    current_path: list[str] = []
+    current_blocks: list[str] = []
 
     def flush():
         nonlocal current_blocks
         text = "\n".join(block for block in current_blocks if block.strip()).strip()
         if text:
-            sections.append({
-                "section_path": current_path.copy(),
-                "text": text,
-            })
+            sections.append(
+                {
+                    "section_path": current_path.copy(),
+                    "text": text,
+                }
+            )
         current_blocks = []
 
     for node in soup.find_all(["h2", "h3", "h4", "p", "li"]):

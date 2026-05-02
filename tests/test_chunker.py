@@ -1,5 +1,5 @@
-from chatbot.chunker import build_markdown_tree
-from chatbot.chunker import MarkDownNode
+from chatbot.chunker.markdown_chunker import build_markdown_tree
+from chatbot.chunker.markdown_chunker import MarkDownNode
 
 
 def restore_markdown_from_tree(node: MarkDownNode, level: int = 0) -> str:
