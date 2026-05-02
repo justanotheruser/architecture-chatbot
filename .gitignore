@@ -10,3 +10,4 @@ env/
 *.sqlite
 
 .env
+indexes/*

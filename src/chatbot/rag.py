@@ -1,5 +1,6 @@
 from jinja2 import Template
 from chatbot.config import RAGConfig
+from chatbot.llm_client import LLMClient
 from chatbot.models import DataChunk
 from chatbot.ports import Encoder, Index
 
@@ -28,6 +29,7 @@ class RAG:
         self.encoder = encoder
         self.index = index
         self.prompt_builder = PromptBuilder(config.prompt)
+        self._llm = LLMClient(config.llm)
 
     def get_answer(self, question: str) -> str:
         context_chunks = self.get_context(question)
@@ -40,4 +42,4 @@ class RAG:
         return [self.chunks[i] for i in indices]
 
     def get_answer_from_llm(self, prompt: str) -> str:
-        return ""
+        return self._llm.complete(prompt)

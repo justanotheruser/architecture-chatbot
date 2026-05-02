@@ -25,6 +25,8 @@ class IndexConfig(BaseModel):
 class LLMConfig(BaseModel):
     vendor: str
     api_key: str
+    base_url: str | None = None
+    model: str
 
 
 class RAGConfig(BaseSettings):

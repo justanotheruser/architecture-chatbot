@@ -10,6 +10,13 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "RAG Chatbot",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chatbot/main.py",
+            "console": "integratedTerminal"
         }
     ]
 }
