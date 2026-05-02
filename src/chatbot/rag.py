@@ -20,7 +20,9 @@ class PromptBuilder:
 
 
 class RAG:
-    def __init__(self, config: RAGConfig, chunks: list[DataChunk], encoder: Encoder, index: Index):
+    def __init__(
+        self, config: RAGConfig, chunks: list[DataChunk], encoder: Encoder, index: Index
+    ):
         self.cfg = config
         self.chunks = chunks
         self.encoder = encoder
@@ -39,4 +41,3 @@ class RAG:
 
     def get_answer_from_llm(self, prompt: str) -> str:
         return ""
-

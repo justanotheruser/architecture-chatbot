@@ -11,7 +11,7 @@ class EncoderConfig(BaseModel):
     model_name: str
 
 
-class IndexConfig(BaseModel):  
+class IndexConfig(BaseModel):
     indexes_dir: Path
 
 

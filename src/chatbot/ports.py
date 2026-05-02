@@ -2,6 +2,7 @@ from typing import Protocol
 import numpy as np
 from pathlib import Path
 
+
 class Encoder(Protocol):
     def get_embedding_dimension(self) -> int: ...
 
