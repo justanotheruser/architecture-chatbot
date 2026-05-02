@@ -33,7 +33,10 @@ def create_or_load_chunks(cfg: ChunkerConfig) -> tuple[list[DataChunk], bool]:
 
 
 def create_or_load_index(
-    cfg: RAGConfig, is_new_chunks: bool, encoder: SentenceTransformerEncoder, chunks: list[DataChunk]
+    cfg: RAGConfig,
+    is_new_chunks: bool,
+    encoder: SentenceTransformerEncoder,
+    chunks: list[DataChunk],
 ) -> FaissIndex:
     index = FaissIndex(encoder, cfg.index)
     index_file_name = get_index_file_path(cfg)
@@ -44,7 +47,7 @@ def create_or_load_index(
         logger.info("Because chunks are new, we need to create new index")
     else:
         is_index_loaded = index.read_index(index_file_name)
-    
+
     if is_index_loaded:
         logger.info("Index file loaded")
         return index

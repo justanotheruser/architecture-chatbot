@@ -5,6 +5,7 @@ from chatbot.models import DataChunk
 from chatbot.ports import Encoder, Index
 from loguru import logger
 
+
 class PromptBuilder:
     def __init__(self, prompt_template: str):
         self.template: Template = Template(prompt_template)
