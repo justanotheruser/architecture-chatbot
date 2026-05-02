@@ -22,6 +22,7 @@ class PromptBuilder:
         result += f"{chunk.text}"
         return result
 
+
 class RAG:
     def __init__(
         self, config: RAGConfig, chunks: list[DataChunk], encoder: Encoder, index: Index
