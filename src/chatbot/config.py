@@ -7,8 +7,18 @@ import yaml
 _CONFIG_FOLDER = Path(__file__).parent.parent.parent / "config"
 
 
+class EncoderConfig(BaseModel):
+    model_name: str
+
+
+class IndexConfig(BaseModel):  
+    indexes_dir: Path
+
+
 class RAGConfig(BaseModel):
     chunker: ChunkerConfig
+    encoder: EncoderConfig
+    index: IndexConfig
     prompt: str
 
 

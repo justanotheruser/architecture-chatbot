@@ -2,6 +2,12 @@ chunker:
   chunk_size: 1000
   overlap_ratio: 0.2
 
+encoder:
+  model_name: all-MiniLM-L6-v2
+
+index:
+  indexes_dir: /home/denis/yandex_practicum/sprint_7_chatbot/indexes
+
 prompt: |
   [System]
   Ты — корпоративный ассистент. 

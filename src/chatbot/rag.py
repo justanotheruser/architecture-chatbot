@@ -1,7 +1,4 @@
 from jinja2 import Template
-from chatbot.env import CHUNKS_DB_PATH
-from chatbot.env import WIKI_PATH
-from chatbot.chunker import Chunker
 from chatbot.config import RAGConfig
 from chatbot.models import DataChunk
 from chatbot.ports import Encoder, Index
@@ -23,13 +20,12 @@ class PromptBuilder:
 
 
 class RAG:
-    def __init__(self, config: RAGConfig, encoder: Encoder, index: Index):
+    def __init__(self, config: RAGConfig, chunks: list[DataChunk], encoder: Encoder, index: Index):
         self.cfg = config
-        self.prompt_builder = PromptBuilder(config.prompt)
+        self.chunks = chunks
         self.encoder = encoder
         self.index = index
-        self._chunks = self._load_chunks()
-        self.index.add([chunk.text for chunk in self._chunks])
+        self.prompt_builder = PromptBuilder(config.prompt)
 
     def get_answer(self, question: str) -> str:
         context_chunks = self.get_context(question)
@@ -39,16 +35,8 @@ class RAG:
 
     def get_context(self, question: str) -> list[DataChunk]:
         indices = self.index.search(question, 10)
-        return [self._chunks[i] for i in indices]
+        return [self.chunks[i] for i in indices]
 
     def get_answer_from_llm(self, prompt: str) -> str:
         return ""
 
-    def _load_chunks(self) -> list[DataChunk]:
-        if CHUNKS_DB_PATH.exists():
-            return Chunker.load_from_sqlite(CHUNKS_DB_PATH)
-        else:
-            chunker = Chunker(self.cfg.chunker)
-            chunker.chunk_markdown_folder(WIKI_PATH)
-            chunker.save_to_sqlite(CHUNKS_DB_PATH)
-            return chunker.chunks

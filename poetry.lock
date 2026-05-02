@@ -207,6 +207,37 @@ files = [
 markers = {main = "platform_system == \"Windows\"", dev = "sys_platform == \"win32\""}
 
 [[package]]
+name = "deflate-dict"
+version = "1.2.2"
+description = "Package to deflate and inflate dictionaries."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "deflate_dict-1.2.2.tar.gz", hash = "sha256:a51f72562a2056118c6b0915b4ac46a483cc329b43d13d759307e4c027ea20ea"},
+]
+
+[package.extras]
+test = ["pytest", "pytest-cov", "random_dict", "validate_version_code"]
+
+[[package]]
+name = "dict-hash"
+version = "1.3.7"
+description = "Python package to hash dictionaries using default hash, md5, sha256 and more."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "dict_hash-1.3.7.tar.gz", hash = "sha256:f0c66d9756091c7b99933cc7ca76576246c10ab4c8d08780ae3a42b95823c3c6"},
+]
+
+[package.dependencies]
+deflate_dict = ">=1.2.2"
+
+[package.extras]
+test = ["netaddr", "pytest", "pytest-cov", "pytest-readme", "random_dict", "validate_version_code"]
+
+[[package]]
 name = "dotenv"
 version = "0.9.9"
 description = "Deprecated package"
@@ -2638,4 +2669,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "1d9d60309dea79664c8d07fc8db056c40df2a95557d89b7a7017af68155ce7d7"
+content-hash = "f8fd51790f64fe473055cc5565d5664cd2feeafcb1b36e436a4886a8e93bf93a"
