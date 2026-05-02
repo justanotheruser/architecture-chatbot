@@ -13,6 +13,7 @@ def tiny_map() -> dict[str, str]:
         "Amber": "Yander",
         "Eric": "Kripke",
         "Corwin": "Pavel",
+        "Avalon": "Azaron",
     }
 
 
@@ -65,3 +66,13 @@ def test_hyphen_apostrophe_term_from_real_map() -> None:
 def test_ty_iga_boundary() -> None:
     m = dict(MAP_OF_TERMS)
     assert replace_terms_in_text("About Ty'iga here.", m) == "About Tigana here."
+
+
+def test_plural_replacement() -> None:
+    m = dict(MAP_OF_TERMS)
+    assert replace_terms_in_text("in the shadow Avalons his name", m) == "in the shadow Azarons his name"
+
+
+def test_possessive_case_replacement() -> None:
+    m = dict(MAP_OF_TERMS)
+    assert replace_terms_in_text("Brand's son", m) == "Jon's son"

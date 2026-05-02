@@ -19,7 +19,7 @@ class PromptBuilder:
         result = f"Имя статьи: {chunk.page_title}\n"
         if chunk.sections:
             result += f"Заголовок раздела: {chunk.sections}\n"
-        result += f"{chunk.text}"
+        result += f"{chunk.text}\n"
         return result
 
 
@@ -34,10 +34,12 @@ class RAG:
         self.prompt_builder = PromptBuilder(config.prompt)
         self._llm = LLMClient(config.llm)
 
-    def get_answer(self, question: str) -> str:
+    def get_answer(self, question: str, return_context: bool = False) -> str | tuple[str, list[DataChunk]]:
         context_chunks = self.get_context(question)
         prompt = self.prompt_builder.build_prompt(question, context_chunks)
         answer = self.get_answer_from_llm(prompt)
+        if return_context:
+            return answer, context_chunks
         return answer
 
     def get_context(self, question: str) -> list[DataChunk]:

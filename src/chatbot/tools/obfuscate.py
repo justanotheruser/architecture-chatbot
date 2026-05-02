@@ -67,13 +67,18 @@ MAP_OF_TERMS = {
     "Ty'iga": "Tigana",
     "Vinta Bayle": "Daiana Blake",
     "Werewindle": "Wasswindle",
+    "Roger": "Charli",
+    "Zelazny": "Derevanny",
+    # для замены в ссылках на амбер wiki
+    "amber": "yander",
+    "princeofamber": "princeofyander",
 }
 
 
 def _compile_term_pattern(term: str) -> re.Pattern[str]:
     """Целое вхождение: слева/справа не латинские буквы и не цифры
     (подчёркивание — не часть имени: в путях wiki разделяет слова)."""
-    return re.compile(rf"(?<![A-Za-z0-9]){re.escape(term)}(?![A-Za-z0-9])")
+    return re.compile(rf"(?<![A-Za-z0-9]){re.escape(term)}(?=('s|s(?![A-Za-z0-9])|(?![A-Za-z0-9])))")
 
 
 def replace_terms_in_text(text: str, mapping: dict[str, str] | None = None) -> str:
