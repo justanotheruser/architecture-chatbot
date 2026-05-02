@@ -7,6 +7,7 @@ from chatbot.encoder.sentence_transformer import SentenceTransformerEncoder
 from chatbot.chunker.wiki_json_chunker import WikiJsonChunker
 from chatbot.models import DataChunk
 import dict_hash
+from loguru import logger
 
 
 def chat_loop(rag: RAG):
@@ -19,14 +20,39 @@ def chat_loop(rag: RAG):
         print(answer)
 
 
-def load_chunks(cfg: ChunkerConfig) -> list[DataChunk]:
+def create_or_load_chunks(cfg: ChunkerConfig) -> tuple[list[DataChunk], bool]:
     if cfg.chunks_db_path.exists():
-        return WikiJsonChunker.load_from_sqlite(cfg.chunks_db_path)
+        logger.info("Chunks database exists, loading from: {}", cfg.chunks_db_path)
+        return WikiJsonChunker.load_from_sqlite(cfg.chunks_db_path), True
     else:
+        logger.info("Chunks database does not exist, creating new one")
         chunker = WikiJsonChunker(cfg)
         chunker.chunk_folder(cfg.wiki_path)
         chunker.save_to_sqlite(cfg.chunks_db_path)
-        return chunker.chunks
+        return chunker.chunks, False
+
+
+def create_or_load_index(
+    cfg: RAGConfig, is_new_chunks: bool, encoder: SentenceTransformerEncoder, chunks: list[DataChunk]
+) -> FaissIndex:
+    index = FaissIndex(encoder, cfg.index)
+    index_file_name = get_index_file_path(cfg)
+    logger.info("Index file name: {}", index_file_name)
+
+    is_index_loaded = False
+    if not is_new_chunks:
+        logger.info("Because chunks are new, we need to create new index")
+    else:
+        is_index_loaded = index.read_index(index_file_name)
+    
+    if is_index_loaded:
+        logger.info("Index file loaded")
+        return index
+    logger.info("Adding chunks to index")
+    index.add([chunk.text for chunk in chunks])
+    logger.info("Writing index to file: {}", index_file_name)
+    index.write_index(index_file_name)
+    return index
 
 
 def get_index_file_path(cfg: RAGConfig) -> Path:
@@ -52,14 +78,16 @@ def get_index_file_path(cfg: RAGConfig) -> Path:
     return index_file_name
 
 
+def setup_logging():
+    logger.add("logs/chatbot_{time}.log", rotation="100 MB", retention="10 days")
+
+
 if __name__ == "__main__":
+    setup_logging()
     cfg = RAGConfig()  # type: ignore[call-arg]
-    chunks = load_chunks(cfg.chunker)
+    logger.info("Config: {}", cfg)
+    chunks, is_new_chunks = create_or_load_chunks(cfg.chunker)
     encoder = SentenceTransformerEncoder(cfg.encoder.model_name)
-    index = FaissIndex(encoder, cfg.index)
-    index_file_name = get_index_file_path(cfg)
-    if not index.read_index(index_file_name):
-        index.add([chunk.text for chunk in chunks])
-        index.write_index(index_file_name)
+    index = create_or_load_index(cfg, is_new_chunks, encoder, chunks)
     rag = RAG(cfg, chunks, encoder=encoder, index=index)
     chat_loop(rag)

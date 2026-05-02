@@ -3,7 +3,7 @@ from chatbot.config import RAGConfig
 from chatbot.llm_client import LLMClient
 from chatbot.models import DataChunk
 from chatbot.ports import Encoder, Index
-
+from loguru import logger
 
 class PromptBuilder:
     def __init__(self, prompt_template: str):
@@ -42,4 +42,5 @@ class RAG:
         return [self.chunks[i] for i in indices]
 
     def get_answer_from_llm(self, prompt: str) -> str:
+        logger.info("Requesting answer from LLM: {}", prompt)
         return self._llm.complete(prompt)
