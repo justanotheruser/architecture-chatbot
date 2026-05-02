@@ -16,10 +16,11 @@ class PromptBuilder:
 
     @staticmethod
     def chunk_to_context(chunk: DataChunk) -> str:
-        return f"""Имя статьи: {chunk.page_title}
-Заголовок раздела: {chunk.sections}\n
-{chunk.text}"""
-
+        result = f"Имя статьи: {chunk.page_title}\n"
+        if chunk.sections:
+            result += f"Заголовок раздела: {chunk.sections}\n"
+        result += f"{chunk.text}"
+        return result
 
 class RAG:
     def __init__(
