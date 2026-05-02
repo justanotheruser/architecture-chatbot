@@ -1,14 +1,11 @@
 from chatbot.rag import RAG
 from pathlib import Path
-from chatbot.config import load_config
+from chatbot.config import ChunkerConfig, RAGConfig
 from pydantic import BaseModel
 from chatbot.index.faiss import FaissIndex
 from chatbot.encoder.sentence_transformer import SentenceTransformerEncoder
 from chatbot.chunker.wiki_json_chunker import WikiJsonChunker
-from chatbot.env import CHUNKS_DB_PATH, WIKI_PATH
 from chatbot.models import DataChunk
-from chatbot.chunker import ChunkerConfig
-from chatbot.rag import RAGConfig
 import dict_hash
 
 
@@ -23,12 +20,12 @@ def chat_loop(rag: RAG):
 
 
 def load_chunks(cfg: ChunkerConfig) -> list[DataChunk]:
-    if CHUNKS_DB_PATH.exists():
-        return WikiJsonChunker.load_from_sqlite(CHUNKS_DB_PATH)
+    if cfg.chunks_db_path.exists():
+        return WikiJsonChunker.load_from_sqlite(cfg.chunks_db_path)
     else:
         chunker = WikiJsonChunker(cfg)
-        chunker.chunk_folder(WIKI_PATH)
-        chunker.save_to_sqlite(CHUNKS_DB_PATH)
+        chunker.chunk_folder(cfg.wiki_path)
+        chunker.save_to_sqlite(cfg.chunks_db_path)
         return chunker.chunks
 
 
@@ -56,7 +53,7 @@ def get_index_file_path(cfg: RAGConfig) -> Path:
 
 
 if __name__ == "__main__":
-    cfg = load_config()
+    cfg = RAGConfig()  # type: ignore[call-arg]
     chunks = load_chunks(cfg.chunker)
     encoder = SentenceTransformerEncoder(cfg.encoder.model_name)
     index = FaissIndex(encoder, cfg.index)

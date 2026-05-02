@@ -1,12 +1,8 @@
-from pydantic import BaseModel
 from pathlib import Path
 from chatbot.models import DataChunk
 import sqlite3
 from abc import ABC, abstractmethod
-
-class ChunkerConfig(BaseModel):
-    chunk_size: int
-    overlap_ratio: float
+from chatbot.config import ChunkerConfig
 
 
 class Chunker(ABC):

@@ -8,6 +8,10 @@ encoder:
 index:
   indexes_dir: /home/denis/yandex_practicum/sprint_7_chatbot/indexes
 
+llm:
+  vendor: openai
+  api_key: ""
+
 prompt: |
   [System]
   Ты — корпоративный ассистент. 
