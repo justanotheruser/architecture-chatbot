@@ -8,6 +8,8 @@ encoder:
 index:
   indexes_dir: /home/denis/yandex_practicum/sprint_7_chatbot/indexes
 
+use_top_k_chunks: 10
+
 llm:
   vendor: openai
   api_key: ""

@@ -17,6 +17,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/chatbot/main.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "RAG Evaluation",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/evaluation/main.py",
+            "console": "integratedTerminal"
         }
     ]
 }

@@ -8,6 +8,7 @@ from ragas.backends.inmemory import InMemoryBackend
 from ragas.dataset import Dataset
 from ragas.experiment import Experiment, experiment
 
+from chatbot.config import RAGConfig
 from chatbot.main import create_rag_client
 from chatbot.tools.obfuscate import inverse_replace_terms_in_text, replace_terms_in_text
 from chatbot.rag import RAG
@@ -201,20 +202,19 @@ async def evaluate_rag_experiment(
     return exp, summarize_experiment(exp)
 
 
-def main() -> None:
-    rag = create_rag_client()
-    cfg = EvaluationConfig()  # type: ignore[call-arg]
+def run_evaluation_experiment(
+    rag_cfg: RAGConfig, eval_cfg: EvaluationConfig
+) -> tuple[Experiment, dict[str, float]]:
+    rag = create_rag_client(rag_cfg)
     exp, summary = asyncio.run(
-        evaluate_rag_experiment(rag, cfg, EVAL_DATASET),
+        evaluate_rag_experiment(rag, eval_cfg, EVAL_DATASET),
     )
-
-    print("Summary (mean over rows):", summary)
-    print(exp)
-    try:
-        print(exp.to_pandas())
-    except Exception:
-        pass
+    return exp, summary
 
 
 if __name__ == "__main__":
-    main()
+    rag_cfg = RAGConfig()  # type: ignore[call-arg]
+    eval_cfg = EvaluationConfig()  # type: ignore[call-arg]
+    exp, summary = run_evaluation_experiment(rag_cfg, eval_cfg)
+    print(exp)
+    print("Summary (mean over rows):", summary)

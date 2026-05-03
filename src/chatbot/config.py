@@ -40,6 +40,7 @@ class RAGConfig(BaseSettings):
     index: IndexConfig
     llm: LLMConfig
     prompt: str
+    use_top_k_chunks: int
 
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE,

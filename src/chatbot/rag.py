@@ -73,7 +73,7 @@ class RAG:
         ), context_chunks
 
     def get_context(self, question: str) -> list[DataChunk]:
-        indices = self.index.search(question, 10)
+        indices = self.index.search(question, self.cfg.use_top_k_chunks)
         return [self.chunks[i] for i in indices]
 
     def get_answer_from_llm(self, prompt: str) -> tuple[str, int, int]:

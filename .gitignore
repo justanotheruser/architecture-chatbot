@@ -12,3 +12,4 @@ env/
 **/.env
 indexes/*
 logs/*
+evaluation/results/*
