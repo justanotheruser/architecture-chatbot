@@ -34,6 +34,13 @@ class EvalExperimentRow(EvalCase):
     retrieved_titles: list[str] = Field(default_factory=list)
     retrieved_sections: list[str] = Field(default_factory=list)
     metric_error: str | None = None
+    # Снимок с одного запроса RAG (для усреднения по датасету в CSV)
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
+    total_latency: float | None = None
+    context_latency: float | None = None
+    generation_latency: float | None = None
 
 
 EVAL_DATASET: list[dict[str, str]] = [
@@ -44,9 +51,23 @@ EVAL_DATASET: list[dict[str, str]] = [
     {
         "user_input": "What is the Pattern?",
         "reference": (
-            "The Pattern is a mystical design associated with Amber that allows "
-            "royal family members to walk through Shadow."
+            "The Pattern is the sentient embodiment of Order that allows Amber's royal "
+            "family members to walk through Shadow. In order to gain that power, "
+            "a walker must walk along the Pattern to its center; stopping for too long, "
+            "or leaving the pathway of the Pattern, results in a terrible death."
         ),
+    },
+    {
+        "user_input": "Who is Corwin?",
+        "reference": "Corwin is a Prince of Amber, the main character of the first five books of The Chronicles of Amber, the second son of Oberon and Faiella, and the father of Merlin.",
+    },
+    {
+        "user_input": "Why does Benedict not simply take the throne of Amber?",
+        "reference": "Benedict does not want the throne and prefers to be General of the Armies of Amber, even though his combat ability would make him almost unchallenged if he wanted it.",
+    },
+    {
+        "user_input": "What are the Trumps of Doom?",
+        "reference": "The Trumps of Doom are cards discovered by Merlin that transport the user to locations of extreme danger, effectively making them traps for the unwary.",
     },
 ]
 
@@ -59,12 +80,21 @@ def run_one_case(rag: RAG, case: dict[str, str]) -> dict[str, Any]:
         rag.prompt_builder.chunk_to_context(chunk) for chunk in chunk_list
     ]
     result = {
+        # для оценки качества ответа
         "user_input": case["user_input"],
         "response": answer,
         "retrieved_contexts": retrieved_contexts,
         "reference": case["reference"],
+        # для отладки
         "retrieved_titles": [chunk.page_title for chunk in chunk_list],
         "retrieved_sections": [chunk.sections for chunk in chunk_list],
+        # для оценки стоимости и производительности
+        "prompt_tokens": response.prompt_tokens,
+        "completion_tokens": response.completion_tokens,
+        "total_tokens": response.total_tokens,
+        "total_latency": response.total_latency,
+        "context_latency": response.context_latency,
+        "generation_latency": response.generation_latency,
     }
     return deobfuscate_output(result)
 
@@ -153,6 +183,12 @@ async def run_rag_eval_row(
         retrieved_titles=out["retrieved_titles"],
         retrieved_sections=out["retrieved_sections"],
         metric_error="; ".join(errors) if errors else None,
+        prompt_tokens=out.get("prompt_tokens"),
+        completion_tokens=out.get("completion_tokens"),
+        total_tokens=out.get("total_tokens"),
+        total_latency=out.get("total_latency"),
+        context_latency=out.get("context_latency"),
+        generation_latency=out.get("generation_latency"),
     )
 
 
@@ -166,11 +202,25 @@ def _build_dataset(cases: list[dict[str, str]]) -> Dataset:
     return ds
 
 
+_SUMMARY_NUMERIC_COLS = [
+    "faithfulness",
+    "answer_relevancy",
+    "context_precision",
+    "context_recall",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "total_latency",
+    "context_latency",
+    "generation_latency",
+]
+
+
 def summarize_experiment(exp: Experiment) -> dict[str, float]:
+    """Средние по строкам датасета: метрики Ragas и агрегаты RAG (токены, время)."""
     df = exp.to_pandas()
-    cols = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
     out: dict[str, float] = {}
-    for c in cols:
+    for c in _SUMMARY_NUMERIC_COLS:
         if c not in df.columns:
             continue
         mean_val = cast(float, df[c].mean(skipna=True))

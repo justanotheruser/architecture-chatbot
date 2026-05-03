@@ -9,6 +9,7 @@ RESULTS_DIR = Path(__file__).parent / "results"
 def convert_to_result_row(
     rag_cfg: RAGConfig, summary: dict[str, float]
 ) -> dict[str, Any]:
+    """summary — средние по датасету из summarize_experiment (метрики + токены/время)."""
     rag_cfg_columns = {
         "chunk_size": rag_cfg.chunker.chunk_size,
         "overlap_ratio": rag_cfg.chunker.overlap_ratio,
