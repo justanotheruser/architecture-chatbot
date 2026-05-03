@@ -24,7 +24,12 @@ class LLMClient:
     def __init__(self, cfg: LLMConfig) -> None:
         self._model = _chat_model(cfg)
 
-    def complete(self, prompt: str) -> str:
+    def complete(self, prompt: str) -> tuple[str, int, int]:
+        """Ответ, prompt tokens, completion tokens (из usage_metadata провайдера, иначе 0)."""
         message = self._model.invoke([HumanMessage(content=prompt)])
         content = message.content
-        return content if isinstance(content, str) else str(content)
+        text = content if isinstance(content, str) else str(content)
+        usage = getattr(message, "usage_metadata", None) or {}
+        prompt_tokens = int(usage.get("input_tokens") or 0)
+        completion_tokens = int(usage.get("output_tokens") or 0)
+        return text, prompt_tokens, completion_tokens

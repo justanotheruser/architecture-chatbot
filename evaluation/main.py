@@ -11,7 +11,6 @@ from ragas.experiment import Experiment, experiment
 from chatbot.main import create_rag_client
 from chatbot.tools.obfuscate import inverse_replace_terms_in_text, replace_terms_in_text
 from chatbot.rag import RAG
-from chatbot.models import DataChunk
 from evaluation.config import EvaluationConfig
 from evaluation.metrics import CollectionMetrics, build_collection_metrics
 from evaluation.models import build_evaluator_models
@@ -53,8 +52,8 @@ EVAL_DATASET: list[dict[str, str]] = [
 
 def run_one_case(rag: RAG, case: dict[str, str]) -> dict[str, Any]:
     user_input = replace_terms_in_text(case["user_input"])
-    answer, chunks = rag.get_answer(user_input, return_context=True)  # type: ignore[assignment]
-    chunk_list = cast(list[DataChunk], chunks)
+    response, chunk_list = rag.get_answer(user_input)
+    answer = response.answer
     retrieved_contexts = [
         rag.prompt_builder.chunk_to_context(chunk) for chunk in chunk_list
     ]

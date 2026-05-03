@@ -4,6 +4,24 @@ from chatbot.llm_client import LLMClient
 from chatbot.models import DataChunk
 from chatbot.ports import Encoder, Index
 from loguru import logger
+from dataclasses import dataclass
+import time
+
+
+@dataclass(slots=True)
+class RAGResponse:
+    answer: str
+    n_context_chunks: int
+    context_latency: float
+    prompt_tokens: int
+    completion_tokens: int
+    generation_latency: float
+    # ~= сумме context_latency и generation_latency, но учитывает время на составления промпта
+    total_latency: float
+
+    @property
+    def total_tokens(self) -> int:
+        return self.prompt_tokens + self.completion_tokens
 
 
 class PromptBuilder:
@@ -34,20 +52,30 @@ class RAG:
         self.prompt_builder = PromptBuilder(config.prompt)
         self._llm = LLMClient(config.llm)
 
-    def get_answer(
-        self, question: str, return_context: bool = False
-    ) -> str | tuple[str, list[DataChunk]]:
+    def get_answer(self, question: str) -> tuple[RAGResponse, list[DataChunk]]:
+        start_time = time.time()
         context_chunks = self.get_context(question)
+        context_latency = time.time() - start_time
         prompt = self.prompt_builder.build_prompt(question, context_chunks)
-        answer = self.get_answer_from_llm(prompt)
-        if return_context:
-            return answer, context_chunks
-        return answer
+        generation_start_time = time.time()
+        answer, prompt_tokens, completion_tokens = self.get_answer_from_llm(prompt)
+        generation_end_time = time.time()
+        generation_latency = generation_end_time - generation_start_time
+        total_latency = generation_end_time - start_time
+        return RAGResponse(
+            answer=answer,
+            n_context_chunks=len(context_chunks),
+            context_latency=context_latency,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            generation_latency=generation_latency,
+            total_latency=total_latency,
+        ), context_chunks
 
     def get_context(self, question: str) -> list[DataChunk]:
         indices = self.index.search(question, 10)
         return [self.chunks[i] for i in indices]
 
-    def get_answer_from_llm(self, prompt: str) -> str:
+    def get_answer_from_llm(self, prompt: str) -> tuple[str, int, int]:
         logger.info("Requesting answer from LLM: {}", prompt)
         return self._llm.complete(prompt)

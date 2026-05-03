@@ -11,7 +11,9 @@ from loguru import logger
 
 
 def setup_logging():
-    logger.add("logs/chatbot_{time}.log", rotation="100 MB", retention="10 days")
+    logger.add(
+        "logs/chatbot_{time}.log", level="DEBUG", rotation="100 MB", retention="10 days"
+    )
 
 
 def create_rag_client() -> RAG:
@@ -24,13 +26,14 @@ def create_rag_client() -> RAG:
 
 
 def chat_loop(rag: RAG):
-    print("Задайте вопрос")
     while True:
+        print("Задайте вопрос")
         question = input()
         if question == "exit":
             break
-        answer = rag.get_answer(question)
-        print(answer)
+        response, _ = rag.get_answer(question)
+        logger.debug("RAG response: {}", response)
+        print(response.answer)
 
 
 def create_or_load_chunks(cfg: ChunkerConfig) -> tuple[list[DataChunk], bool]:
