@@ -10,6 +10,19 @@ import dict_hash
 from loguru import logger
 
 
+def setup_logging():
+    logger.add("logs/chatbot_{time}.log", rotation="100 MB", retention="10 days")
+
+
+def create_rag_client() -> RAG:
+    cfg = RAGConfig()  # type: ignore[call-arg]
+    logger.info("Config: {}", cfg)
+    chunks, is_new_chunks = create_or_load_chunks(cfg.chunker)
+    encoder = SentenceTransformerEncoder(cfg.encoder.model_name)
+    index = create_or_load_index(cfg, is_new_chunks, encoder, chunks)
+    return RAG(cfg, chunks, encoder=encoder, index=index)
+
+
 def chat_loop(rag: RAG):
     print("Задайте вопрос")
     while True:
@@ -81,16 +94,8 @@ def get_index_file_path(cfg: RAGConfig) -> Path:
     return index_file_name
 
 
-def setup_logging():
-    logger.add("logs/chatbot_{time}.log", rotation="100 MB", retention="10 days")
-
-
 if __name__ == "__main__":
     setup_logging()
     cfg = RAGConfig()  # type: ignore[call-arg]
-    logger.info("Config: {}", cfg)
-    chunks, is_new_chunks = create_or_load_chunks(cfg.chunker)
-    encoder = SentenceTransformerEncoder(cfg.encoder.model_name)
-    index = create_or_load_index(cfg, is_new_chunks, encoder, chunks)
-    rag = RAG(cfg, chunks, encoder=encoder, index=index)
+    rag = create_rag_client()
     chat_loop(rag)

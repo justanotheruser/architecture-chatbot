@@ -74,11 +74,15 @@ MAP_OF_TERMS = {
     "princeofamber": "princeofyander",
 }
 
+INVERSE_MAP_OF_TERMS = {v: k for k, v in MAP_OF_TERMS.items()}
+
 
 def _compile_term_pattern(term: str) -> re.Pattern[str]:
     """Целое вхождение: слева/справа не латинские буквы и не цифры
     (подчёркивание — не часть имени: в путях wiki разделяет слова)."""
-    return re.compile(rf"(?<![A-Za-z0-9]){re.escape(term)}(?=('s|s(?![A-Za-z0-9])|(?![A-Za-z0-9])))")
+    return re.compile(
+        rf"(?<![A-Za-z0-9]){re.escape(term)}(?=('s|s(?![A-Za-z0-9])|(?![A-Za-z0-9])))"
+    )
 
 
 def replace_terms_in_text(text: str, mapping: dict[str, str] | None = None) -> str:
@@ -88,6 +92,10 @@ def replace_terms_in_text(text: str, mapping: dict[str, str] | None = None) -> s
     for term, replacement in pairs:
         result = _compile_term_pattern(term).sub(replacement, result)
     return result
+
+
+def inverse_replace_terms_in_text(text: str) -> str:
+    return replace_terms_in_text(text, INVERSE_MAP_OF_TERMS)
 
 
 def rename_files(source_dir: Path) -> None:

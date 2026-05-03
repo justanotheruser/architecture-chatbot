@@ -70,7 +70,10 @@ def test_ty_iga_boundary() -> None:
 
 def test_plural_replacement() -> None:
     m = dict(MAP_OF_TERMS)
-    assert replace_terms_in_text("in the shadow Avalons his name", m) == "in the shadow Azarons his name"
+    assert (
+        replace_terms_in_text("in the shadow Avalons his name", m)
+        == "in the shadow Azarons his name"
+    )
 
 
 def test_possessive_case_replacement() -> None:

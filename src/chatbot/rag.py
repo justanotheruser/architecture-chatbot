@@ -34,7 +34,9 @@ class RAG:
         self.prompt_builder = PromptBuilder(config.prompt)
         self._llm = LLMClient(config.llm)
 
-    def get_answer(self, question: str, return_context: bool = False) -> str | tuple[str, list[DataChunk]]:
+    def get_answer(
+        self, question: str, return_context: bool = False
+    ) -> str | tuple[str, list[DataChunk]]:
         context_chunks = self.get_context(question)
         prompt = self.prompt_builder.build_prompt(question, context_chunks)
         answer = self.get_answer_from_llm(prompt)

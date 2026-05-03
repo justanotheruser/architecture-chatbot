@@ -9,6 +9,6 @@ env/
 
 *.sqlite
 
-.env
+**/.env
 indexes/*
 logs/*

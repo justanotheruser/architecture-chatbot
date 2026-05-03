@@ -19,6 +19,21 @@ dependencies = [
     "loguru (>=0.7.3,<0.8.0)",
 ]
 
+# Зависимости для `evaluation` и скрипта `evaluate-rag` (RAGAS, датасеты, LLM API).
+# pip: pip install ".[eval]"
+# poetry (вместе с dev): poetry install --with dev --extras eval
+[project.optional-dependencies]
+eval = [
+    "ragas (>=0.4.3,<0.5.0)",
+    "openai (>=2.33.0,<3.0.0)",
+    "datasets (>=4.0.0,<5.0.0)",
+]
+
+[tool.poetry]
+packages = [
+    { include = "chatbot", from = "src" },
+    { include = "evaluation" },
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -41,7 +56,6 @@ dev = [
     "beautifulsoup4 (>=4.14.3,<5.0.0)",
     "types-requests (>=2.33.0.20260408,<3.0.0.0)",
     "pre-commit (>=4.6.0,<5.0.0)",
-    "ragas (>=0.4.3,<0.5.0)",
 ]
 
 
@@ -50,3 +64,6 @@ python_version = "3.12"
 explicit_package_bases = true
 mypy_path = ["src"]
 files = ["src/chatbot"]
+
+[tool.poetry.scripts]
+evaluate-rag = "evaluation.main:main"

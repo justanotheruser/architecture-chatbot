@@ -63,7 +63,8 @@ pages = fetch_all_pages()
 page_titles = [
     page["title"]
     for page in pages
-    if page["title"] not in {"Amberpedia Manual of Style", "Amberpedia Wiki", "Main Page"}
+    if page["title"]
+    not in {"Amberpedia Manual of Style", "Amberpedia Wiki", "Main Page"}
 ]
 DESTINATION_DIR.mkdir(parents=True, exist_ok=True)
 for page_title in page_titles:
