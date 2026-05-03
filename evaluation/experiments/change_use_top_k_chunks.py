@@ -59,7 +59,7 @@ def plot_token_metrics(df: pd.DataFrame) -> None:
     ax.legend()
     ax.set_xlabel("Number of chunks")
     ax.set_ylabel("Metric")
-    ax.set_title("RAG metrics vs. Number of chunks")
+    ax.set_title("Token metrics vs. Number of chunks")
     plt.show()
 
 
