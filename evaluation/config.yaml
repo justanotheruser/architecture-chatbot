@@ -1,0 +1,4 @@
+vendor: openai
+llm_model: gpt-5.4
+embeddings_model: text-embedding-3-small
+base_url: https://polza.ai/api/v1

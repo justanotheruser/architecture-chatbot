@@ -6,3 +6,10 @@ __pycache__/
 .venv/
 venv/
 env/
+
+*.sqlite
+
+**/.env
+indexes/*
+logs/*
+evaluation/results/*
